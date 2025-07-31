@@ -93,7 +93,7 @@ Place your `deno.json` in the deployable directory:
 
 **Always use React** for Val Town frontends. Here's the opinionated approach:
 
-### Core Principles
+### Frontend Core Principles
 
 - **HTML is just a bootstrap file** - Keep it minimal, only load React
 - **No HTML fallbacks** - JavaScript is required, period
@@ -138,13 +138,16 @@ Val Town uses Turso (SQLite) under the hood. Use Drizzle ORM for type safety.
 - **Type-safe queries** - Use Drizzle's query builder
 - **Migrations** - Track schema changes with versioned migrations
 
-### Best Practices
+### Database Best Practices
 
-1. **Use singular table names** (e.g., `user` not `users`)
-2. **Define relations** for efficient querying
-3. **Add indexes** on foreign keys and frequently queried columns
-4. **Use transactions** for multi-table operations
-5. **Handle SQLite limitations** - No complex ALTER TABLE
+- Use singular table names (e.g., `user` not `users`)
+- Define relations for efficient querying
+- Add indexes** on foreign keys and frequently queried columns
+- Use transactions** for multi-table operations
+- Handle SQLite limitations - No complex ALTER TABLE
+- Limited ALTER TABLE support
+- Change table names instead of altering
+- Always run migrations before queries
 
 ### Common Patterns
 
@@ -155,7 +158,7 @@ Val Town uses Turso (SQLite) under the hood. Use Drizzle ORM for type safety.
 
 ## Testing Strategy
 
-### Core Principles
+### Testing Core Principles
 
 - Write tests first or ensure code is testable
 - Place test files next to code: `user.ts` → `user.test.ts`
@@ -205,7 +208,7 @@ deno task quality           # Includes tests in quality check
 - Define interfaces for all data structures
 - External libraries from esm.sh include types automatically
 
-### Best Practices
+### TypesSript Best Practices
 
 - Leverage TypeScript's strict mode
 - Type API responses for client-side safety
@@ -270,24 +273,37 @@ deno task deploy  # Runs quality checks first
 
 ### Utility Functions
 
-- **serveFile** - Serve static files with proper content types
-- **readFile** - Read project files
-- **listFiles** - List all project files
+### Importing Utilities
 
-Import from `https://esm.town/v/std/utils/index.ts`
+Always import utilities with version pins to avoid breaking changes:
 
-Example usage:
-```typescript
-import { serveFile } from "https://esm.town/v/std/utils/index.ts";
+```ts
+import { readFile, serveFile } from "https://esm.town/v/std/utils@85-main/index.ts";
+```
 
-// Serve static files
-app.get("/", (_c) => {
-  return serveFile("/frontend/index.html", import.meta.url);
-});
+### Available Utilities
 
-app.get("/frontend/*", (c) => {
-  return serveFile(c.req.path, import.meta.url);
-});
+**serveFile** - Serve project files with proper content types
+
+For example, in Hono:
+
+```ts
+// serve all files in frontend/ and shared/
+app.get("/frontend/*", c => serveFile(c.req.path, import.meta.url));
+app.get("/shared/*", c => serveFile(c.req.path, import.meta.url));
+```
+
+**readFile** - Read files from within the project:
+
+```ts
+// Read a file from the project
+const fileContent = await readFile("/frontend/index.html", import.meta.url);
+```
+
+**listFiles** - List all files in the project
+
+```ts
+const files = await listFiles(import.meta.url);
 ```
 
 ## Platform Specifics
@@ -300,16 +316,6 @@ app.get("/frontend/*", (c) => {
 - **No Deno KV** - Use SQLite instead
 - **No browser APIs** - No alert(), prompt(), confirm()
 - **Automatic CORS** - Don't import CORS middleware
-
-### Best Practices
-
-- Use emojis/unicode instead of images
-- Let errors bubble up with context
-- Prefer APIs without keys (e.g., open-meteo for weather)
-- Add error debugging script:
-  `<script src="https://esm.town/v/std/catch"></script>`
-- **Never create placeholder functions** for Val Town utilities - always import
-  the real ones directly, even during development
 
 ## Common Gotchas
 
@@ -329,12 +335,6 @@ app.get("/frontend/*", (c) => {
   `https://esm.town/v/std/utils/index.ts` or their respective standard library modules
   from the start
 
-### Database
-
-- Limited ALTER TABLE support
-- Change table names instead of altering
-- Always run migrations before queries
-
 ## Migration Strategy
 
 ### Principles
@@ -350,3 +350,10 @@ app.get("/frontend/*", (c) => {
 - Consider performance impact
 - Backup before destructive changes
 - Remember SQLite limitations
+- Use emojis/unicode instead of images
+- Let errors bubble up with context
+- Prefer APIs without keys (e.g., open-meteo for weather)
+- Add error debugging script:
+  `<script src="https://esm.town/v/std/catch"></script>`
+- **Never create placeholder functions** for Val Town utilities - always import
+  the real ones directly, even during development
