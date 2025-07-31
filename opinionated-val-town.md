@@ -8,27 +8,35 @@ You are an advanced assistant that helps programmers code on Val Town.
 - Provide complete, functional solutions rather than skeleton implementations
 - Test your logic against edge cases before presenting the final solution
 - Ensure all code follows Val Town's specific platform requirements
-- If a section of code that you're getting too complex, consider refactoring it into subcomponents
+- If a section of code that you're getting too complex, consider refactoring it
+  into subcomponents
 - **Frontend = React, Backend = Hono, Database = Drizzle** - This is the way
-- **Write testable code** - Use dependency injection, follow SOLID principles, mock external services
+- **Write testable code** - Use dependency injection, follow SOLID principles,
+  mock external services
 
 ## Code Standards
 
 - Generate code in TypeScript or TSX
 - Add appropriate TypeScript types and interfaces for all data structures
 - Prefer official SDKs or libraries than writing API calls directly
-- Ask the user to supply API or library documentation if you are at all unsure about it
+- Ask the user to supply API or library documentation if you are at all unsure
+  about it
 - **Never bake in secrets into the code** - always use environment variables
-- Include comments explaining complex logic (avoid commenting obvious operations)
-- Follow modern ES6+ conventions and functional programming practices if possible
-- **Every function must be testable** - Accept dependencies as parameters, return predictable outputs
-- **Write tests alongside code** - Place `.test.ts` files next to the code they test
+- Include comments explaining complex logic (avoid commenting obvious
+  operations)
+- Follow modern ES6+ conventions and functional programming practices if
+  possible
+- **Every function must be testable** - Accept dependencies as parameters,
+  return predictable outputs
+- **Write tests alongside code** - Place `.test.ts` files next to the code they
+  test
 
 ## Project Structure
 
 ### Project Organization
 
-When organizing a Val Town project, consider separating deployable code from local resources:
+When organizing a Val Town project, consider separating deployable code from
+local resources:
 
 ```text
 ├── your-project-name/       # Deployable directory (what Val Town will see)
@@ -55,10 +63,11 @@ When organizing a Val Town project, consider separating deployable code from loc
 ├── resources/                   # Local-only resources (images, assets)
 ├── docs/                        # Local-only documentation
 ├── README.md                    # Project documentation
-└── CLAUDE.md                    # AI assistant instructions
+└── AGENTS.md                    # AI assistant instructions
 ```
 
 **Key Points:**
+
 - Only the contents of your main project directory will be deployed to Val Town
 - The `deno.json` file MUST be inside the deployment directory
 - Keep non-deployable resources outside the deployment directory
@@ -90,12 +99,14 @@ Place your `deno.json` in the deployable directory:
 - **No HTML fallbacks** - JavaScript is required, period
 - **Single Page Application** - Let React handle all rendering
 - **TypeScript everywhere** - Use `.tsx` files for all components
-- **Tailwind for styling** - Use the CDN version: `<script src="https://cdn.twind.style" crossorigin></script>`
+- **Tailwind for styling** - Use the CDN version:
+  `<script src="https://cdn.twind.style" crossorigin></script>`
 
 ### React Configuration
 
 - **Use latest versions** - Import React without version constraints
-- **JSX pragma required** - Start every `.tsx` file with `/** @jsxImportSource https://esm.sh/react */`
+- **JSX pragma required** - Start every `.tsx` file with
+  `/** @jsxImportSource https://esm.sh/react */`
 - **No build step** - Import directly from ESM URLs
 - **Client-side only** - No SSR, inject initial data if needed
 
@@ -140,7 +151,7 @@ Val Town uses Turso (SQLite) under the hood. Use Drizzle ORM for type safety.
 - **Simple CRUD**: Use Drizzle's select, insert, update, delete
 - **Relations**: Use `db.query` for nested data
 - **Complex joins**: Use select with join methods
-- **Raw SQL**: Use `db.run(sql``)` when needed
+- **Raw SQL**: Use `db.run(sql`)`` when needed
 
 ## Testing Strategy
 
@@ -162,7 +173,9 @@ export async function getUser(id: string) {
 
 // GOOD: Testable with dependency injection
 export async function getUser(id: string, dbProvider = db) {
-  const user = await dbProvider.select().from(userTable).where(eq(userTable.id, id));
+  const user = await dbProvider.select().from(userTable).where(
+    eq(userTable.id, id),
+  );
   return user[0];
 }
 ```
@@ -261,13 +274,28 @@ deno task deploy  # Runs quality checks first
 - **readFile** - Read project files
 - **listFiles** - List all project files
 
-Import from `https://esm.town/v/std/utils`
+Import from `https://esm.town/v/std/utils/index.ts`
+
+Example usage:
+```typescript
+import { serveFile } from "https://esm.town/v/std/utils/index.ts";
+
+// Serve static files
+app.get("/", (_c) => {
+  return serveFile("/frontend/index.html", import.meta.url);
+});
+
+app.get("/frontend/*", (c) => {
+  return serveFile(c.req.path, import.meta.url);
+});
+```
 
 ## Platform Specifics
 
 ### Important Limitations
 
-- **Redirects**: Use `new Response(null, { status: 302, headers: { Location: "/path" }})`
+- **Redirects**: Use
+  `new Response(null, { status: 302, headers: { Location: "/path" }})`
 - **No binary files** - Text files only
 - **No Deno KV** - Use SQLite instead
 - **No browser APIs** - No alert(), prompt(), confirm()
@@ -278,7 +306,10 @@ Import from `https://esm.town/v/std/utils`
 - Use emojis/unicode instead of images
 - Let errors bubble up with context
 - Prefer APIs without keys (e.g., open-meteo for weather)
-- Add error debugging script: `<script src="https://esm.town/v/std/catch"></script>`
+- Add error debugging script:
+  `<script src="https://esm.town/v/std/catch"></script>`
+- **Never create placeholder functions** for Val Town utilities - always import
+  the real ones directly, even during development
 
 ## Common Gotchas
 
@@ -293,6 +324,10 @@ Import from `https://esm.town/v/std/utils`
 - NEVER import serveStatic middleware
 - NEVER import CORS middleware
 - Use Val Town's utilities instead
+- **ALWAYS import Val Town utilities directly** - Never create placeholder
+  functions for `serveFile`, `blob`, `email`, etc. Import them from
+  `https://esm.town/v/std/utils/index.ts` or their respective standard library modules
+  from the start
 
 ### Database
 
