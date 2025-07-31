@@ -2,7 +2,7 @@
 
 ## An opinionated system prompt for vibe coding val.town projects
 
-This is a remixed and opinionated version of the LLM system prompt that [val town](https://val.town) offers:
+The [opinionated-val-town.md](opnionated-val-town.md) is a remixed and opinionated version of the LLM system prompt that [val town](https://val.town) offers:
 
 [https://www.val.town/x/valdottown/Townie/code/prompts/system_prompt.txt](https://www.val.town/x/valdottown/Townie/code/prompts/system_prompt.txt)
 
